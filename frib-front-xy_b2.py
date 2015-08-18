@@ -2327,7 +2327,7 @@ top.prwall = r_p_down    # consistent aperture
 step(n_step)
 """
 
-n_step = nint((d5_tmp_e-top.zbeam)/wxy.ds) + 2   # add two extra steps in case of roundoff accumulation 
+n_step = nint((d5_tmp_e-top.zbeam)/wxy.ds) + 4   # add two extra steps in case of roundoff accumulation 
 #top.prwall = 40.0*cm    # consistent aperture 
 step(n_step)
 
