@@ -25,6 +25,14 @@ from warp        import *               # Warp code
 from errorcheck  import checksymmetry   # Check for input errors
 #from runcounters import *               # Counter for parametric runs 
 
+#import sys
+#vvv = float(sys.argv[2])
+
+pkldatafolder = '/home/k/wfrib/test/'
+#pkldatafolder = '/home/Fukushima/wfrib/test_beam24/'
+scriptfolder = '/home/k/local_database/lwfrib/'
+#scriptfolder = '/home/Fukushima/wwfrib/'
+
 # Set informational labels included on all output cgm plots.   
 top.pline2   = "xy Slice Simulation: FRIB Front End" 
 top.pline1   = " "   # Add more info, if desired.  
@@ -368,7 +376,7 @@ ecr_sc     = 1.0                    # scale factor to muliply field data by
 ecr_typ    = "lin"                  # type: "lin" = linear optics fields or "nl" = nonlinear r-z field  
 
 # --- --- linear element data  
-fi = PRpickle.PR("/home/k/wfrib/test/lat_ecr_venus.lin.20150813.pkl")
+fi = PRpickle.PR( pkldatafolder + "lat_ecr_venus.lin.20150813.pkl")
 ecr_bz_extr = fi.ecr_venus_bz_extr
 ecr_dz = fi.ecr_venus_dz 
 ecr_nz = fi.ecr_venus_nz  
@@ -412,7 +420,7 @@ s4p2_typ = "lin"        # S4 1: type: "lin" = linear optics fields or "nl" = non
 
 # --- --- linear element data  
 #fi = PRpickle.PR("lat_s4.lin.20140603.pkl")
-fi = PRpickle.PR("/home/k/wfrib/test/lat_s4.lin.20141031.pkl")
+fi = PRpickle.PR( pkldatafolder + "lat_s4.lin.20141031.pkl")
 s4_dz  = fi.s4_dz 
 s4_nz  = fi.s4_nz  
 s4_z_m = fi.s4_z_m 
@@ -425,7 +433,7 @@ s4_lin_id = addnewmmltdataset(zlen=s4_zlen,ms=s4_bz0_m,msp=s4_bz0p_m,nn=0,vv=0)
 
 # --- --- nonlinear element field data 
 #fi = PRpickle.PR('lat_s4.rz.20140603.pkl') 
-fi = PRpickle.PR('/home/k/wfrib/test/lat_s4.rz.20141031.pkl') 
+fi = PRpickle.PR( pkldatafolder + 'lat_s4.rz.20141031.pkl') 
 #
 s4_len_coil   = fi.s4_len_coil 
 s4_len_magnet = fi.s4_len_magnet 
@@ -442,7 +450,7 @@ fi.close()
 
 # --- --- nonlinear element vector potential data 
 #fi = PRpickle.PR('lat_s4.at.20140603.pkl') 
-fi = PRpickle.PR('/home/k/wfrib/test/lat_s4.at.20141031.pkl') 
+fi = PRpickle.PR( pkldatafolder + 'lat_s4.at.20141031.pkl') 
 #
 if fi.s4_nz != s4_nz: raise Exception("S4: Nonlin Vector potential model nz not equal to nonlinear/linear model nz")
 if fi.s4_nr != s4_nr: raise Exception("S4: Nonlin Vector potential model nr not equal to nonlinear model nr")
@@ -530,7 +538,7 @@ gag_typ = "nl"       # Grated Accel Gap: type: "ideal" = Short gap kick, "lin" =
 
 # --- --- linear element data  
 # fi = PRpickle.PR("lat_gag.lin.20140624.pkl")  # Original Warp model with simplified geometry  
-fi = PRpickle.PR("/home/k/wfrib/test/lat_gag.lin.20141029.pkl")    # Poisson model with high detail 
+fi = PRpickle.PR( pkldatafolder + "lat_gag.lin.20141029.pkl")    # Poisson model with high detail 
 gag_dz = fi.gag_dz0 
 gag_nz = fi.gag_nz0  
 gag_z_m     = fi.gag_z0_m  
@@ -544,7 +552,7 @@ gag_lin_id = addnewemltdataset(zlen=gag_zlen,es=gag_ez0_m,esp=gag_ez0p_m,nn=0,vv
 
 # --- --- nonlinear element data
 #fi = PRpickle.PR('lat_gag.rz.20140624.pkl')  # Original Warp model with simplified geometry  
-fi = PRpickle.PR('/home/k/wfrib/test/lat_gag.rz.20141029.pkl')   # Poisson model with high detail 
+fi = PRpickle.PR( pkldatafolder + 'lat_gag.rz.20141029.pkl')   # Poisson model with high detail 
 if fi.gag_nz != gag_nz: raise Exception("GAG: Nonlinear and linear field model nz not equal") 
 gag_nr = fi.gag_nr
 gag_dr = fi.gag_dr
@@ -595,7 +603,7 @@ d5p1_str = 1.0         # D5 1: Input field scale factor
 d5p1_typ = "lin"        # D5 1: type: "lin" = linear optics fields or "3d" = 3d field  
 
 # --- --- nonlinear element data 
-fi = PRpickle.PR('/home/k/wfrib/test/lat_d5.3d.20140527.pkl') 
+fi = PRpickle.PR( pkldatafolder + 'lat_d5.3d.20140527.pkl') 
 d5_3d_nx = fi.d5_nx
 d5_3d_ny = fi.d5_ny
 d5_3d_nz = fi.d5_nz
@@ -758,7 +766,27 @@ dx = l_grid/float(n_grid)
 #     At present, all species are loaded with the same value of distrbtn.   zbeam can be 
 #     set before the generate for the beam location. 
 
-z_launch = 69.200938#average(sp_z_ave)
+fi = PRpickle.PR(scriptfolder +'allpart1278.pkl')
+pcnt = 0
+sp_z_ave = []
+top.npmax = 0
+
+allspx  = fi.allspx
+allspy  = fi.allspy
+allspz  = fi.allspz
+allspvx = fi.allspvx
+allspvy = fi.allspvy
+allspvz = fi.allspvz
+allspsw = fi.allspsw
+
+for ii in sort(sp.keys()):
+ sp_z_ave.append(average(allspz[pcnt]))
+ pcnt += 1
+fi.close()
+
+
+z_launch = average(sp_z_ave)
+#z_launch = 69.200938#average(sp_z_ave)
 #z_launch  = 67.69167#ecr_z_extr + 10.*cm 
 #z_launch = d5_tmp_s
 top.zbeam = z_launch
@@ -858,27 +886,26 @@ package("wxy"); generate()
 #memo sp[].w = array 0
 
 
-fi = PRpickle.PR('/home/k/local_database/lwfrib/allpart1278.pkl')
 pcnt = 0
-sp_z_ave = []
-top.npmax = 0
 for ii in sort(sp.keys()):
- gi = ones(len(fi.allspx[pcnt]))
- sp_z_ave.append(average(fi.allspz[pcnt]))
- sp[ii].addpart(x=fi.allspx[pcnt],   y=fi.allspy[pcnt],   z=fi.allspz[pcnt],\
-                    vx=fi.allspvx[pcnt], vy=fi.allspvy[pcnt], vz=fi.allspvz[pcnt],\
+ gi = ones(len(allspx[pcnt]))
+ sp[ii].addpart(x=allspx[pcnt],   y=allspy[pcnt],   z=allspz[pcnt],\
+                vx=allspvx[pcnt], vy=allspvy[pcnt], vz=allspvz[pcnt],\
                     gi = gi, w = 0.0)
- sp[ii].sw = fi.allspsw[pcnt]
+ sp[ii].sw = allspsw[pcnt]
  top.npmax += sp[ii].getn()
  pcnt += 1
-fi.close()
 
-
+#raise Exception('to here')
 # Read in diagnostics for applied lattice fields 
-execfile("/home/k/wfrib/test/diag_lattice.py") 
+execfile( pkldatafolder + "diag_lattice.py") 
 
 # Install conducting aperture on mesh 
 installconductors(aperture,dfill=largepos)
+
+top.dipoby = array([ 0.17780642])
+#top.dipoby = array([ 0.18817846])
+#raise Exception("to here")
 
 # Check that inputs are consistent with symmetries (errorcheck package function)
 checksymmetry()
@@ -947,6 +974,7 @@ bz0_launch = getappliedfields(x=0.,y=0.,z=z_launch)[5]      # B_z on-axis at sim
 
 inj_ang_mom = true
 
+"""
 sp_krot_launch = {}
 sp_krot_v      = {} 
 for ii in sp.keys():
@@ -967,11 +995,6 @@ for ii in sp.keys():
   if inj_ang_mom: 
     s.uxp -= krot_launch*s.yp*s.uzp
     s.uyp += krot_launch*s.xp*s.uzp
-
-
-top.dipoby = array([ 0.17780642])
-#top.dipoby = array([ 0.18817846])
-#raise Exception("to here")
 
 # --- make plots of initial rotation by species at launch point and if transported in vacuuo    
 
@@ -1004,7 +1027,7 @@ def diag_plt_krot_v():
   fma()
 
 diag_plt_krot_v() 
-
+"""
 
 # Make plot of initial Brho by species 
 plt_diag_bro(label = "Initial Rigidity by Species") 
@@ -1037,6 +1060,7 @@ savehist(0.)
 
 # ---- local diagnostic history arrays 
 hl_lenhist_max = 10000
+hl_vbeam    = fzeros([hl_lenhist_max,top.ns])
 hl_ekin     = fzeros([hl_lenhist_max,top.ns])  # axial beam kinetic energy 
 hl_spnum    = fzeros([hl_lenhist_max,top.ns])  # number simulation particles
 hl_spnumt   = fzeros([hl_lenhist_max])         # number simulation particles (all species) 
@@ -1054,6 +1078,7 @@ hl_lang     = fzeros([hl_lenhist_max,top.ns])  # Larmor rotation angle
 hl_epspv    = fzeros([hl_lenhist_max,top.ns])  # rms total phase volume emittance 
 hl_epspvn   = fzeros([hl_lenhist_max,top.ns])  # rms normalized total phase volume emittance ** warning save scaled mm-mrad **
 #
+hl_ave_vbeam =  fzeros([hl_lenhist_max]) 
 hl_Rt       = fzeros([hl_lenhist_max])         # rms rad   (all species) 
 hl_Qt       = fzeros([hl_lenhist_max])         # Perveance (all species) 
 hl_emitt    = fzeros([hl_lenhist_max])         # emittance (all species) 
@@ -1065,7 +1090,8 @@ hl_dz = top.nhist*wxy.ds
 def diag_hist_hl():
   # check step in history accumulation cycle 
   if top.it%top.nhist != 0: return
-  # accumulate history diagnostics by species 
+  # accumulate history diagnostics by species
+  vbtmp = []  
   for ii in sp.keys():
     s = sp[ii]
     js = s.js 
@@ -1094,7 +1120,8 @@ def diag_hist_hl():
     avg_ypx = s.mass*sum( (s.sw*s.w)*s.gety()*s.getux() )/weight
     #
     bz0  = getappliedfields(x=0.,y=0.,z=top.zbeam)[5]
-    # 
+    #
+    hl_vbeam[top.jhist,js] = vbeam
     # --- Axial kinetic energy 
     hl_ekin[top.jhist,js] = s.mass*clight**2*(gammabeam - 1.)/jperev     
     # --- Simulation Particle Number 
@@ -1122,6 +1149,9 @@ def diag_hist_hl():
     hl_epspvn[top.jhist,js] = (gammabeam*(vbeam/clight))*hl_epspv[top.jhist,js]*1.e6 
     # --- Rotation wavenumber 
     hl_krot[top.jhist,js] = hl_lz_bar[top.jhist,js]/avg_rsq
+    
+    vbtmp.append(vbeam)
+    
     # --- Larmor Rotation angle: integrate from previous step  
     if top.jhist == 0:
       hl_lang[0,js] = 0.  
@@ -1133,7 +1163,8 @@ def diag_hist_hl():
   hl_ibeam_pt[top.jhist] = sum(hl_ibeam_p[top.jhist,:]) 
   hl_ibeam_et[top.jhist] = sum(hl_ibeam_e[top.jhist,:]) 
   # --- total perveance 
-  #hl_Rt[top.jhist] = sqrt(average( getx(jslist=-1)**2 + gety(jslist=-1))) 
+  #hl_Rt[top.jhist] = sqrt(average( getx(jslist=-1)**2 + gety(jslist=-1)))
+  hl_ave_vbeam[top.jhist] = average(vbtmp)
  
 
 diag_hist_hl()   # make sure initial diagnostic saved before any steps 
@@ -1217,7 +1248,7 @@ diag_part_z_names = [str(i) for i in diag_part_step]
 diag_field_step = arange(0,4001,50)
 diag_field_z_names = [str(i) for i in diag_field_step] 
 
-diag_hist_step = arange(250,4001,500)
+diag_hist_step = arange(250,4001,250)
 
 def diag_part(plt_xy=False,plt_xxp=False,plt_yyp=False,plt_xpyp=False,
               plt_trace=False, plt_denxy=False, plt_denr=False):
@@ -2265,7 +2296,8 @@ diag_calls()
 
 # Advance simulation specified steps 
 
-execfile("anm_plot_bnd.py")
+#execfile(scriptfolder + "anm_plot_bnd.py")
+
 
 """"
 # ---- to grated accel gap  
@@ -2299,16 +2331,7 @@ n_step = nint((d5_tmp_e-top.zbeam)/wxy.ds) + 2   # add two extra steps in case o
 #top.prwall = 40.0*cm    # consistent aperture 
 step(n_step)
 
-#diag_part(plt_xy=true,plt_xxp=true,plt_yyp=true,plt_xpyp=true,plt_trace=false,plt_denxy=true,plt_denr=true)
-#diag_field(plt_pc=true,plt_pc_xy=true,plt_pa=true)
-diag_hist(plt_ekin=true,plt_spnum=true,plt_curr_e=true,plt_curr_p=true,plt_lam_p=true,plt_lam_e=true,
-              plt_lz=true,plt_pth=true,plt_pthn=true,plt_krot=true,plt_lang=true, 
-              plt_cen=true,plt_envrms=true,plt_envmax=true,plt_envrmsp=true,  
-              plt_emit=true,plt_emitn=true,plt_emitg=true,plt_emitng=true,plt_emitr=true,plt_emitnr=true, 
-              plt_emitpv=true,emitpvn=true)
-
-
-#execfile("outputdat2.py")
+execfile( scriptfolder + "outputdat3.py")
 
 # Make additional history plots for final run if not already called 
 #if not(top.it >= diag_hist_step.max()):
