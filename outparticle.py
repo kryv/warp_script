@@ -20,3 +20,4 @@ for ii in sort(sp.keys()):
  fo.allspvz.append(sp[ii].getvz())
  fo.allspw.append(sp[ii].getw())
  fo.allspsw.append(sp[ii].sw)
+fo.close()
