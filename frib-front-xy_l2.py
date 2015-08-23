@@ -28,8 +28,8 @@ from errorcheck  import checksymmetry   # Check for input errors
 #import sys
 #vvv = float(sys.argv[2])
 
-#sim_area = 0 # straight section
-sim_area = 1 # bend section
+sim_area = 0 # straight section
+#sim_area = 1 # bend section
 
 pkldatafolder = '/home/k/wfrib/test/'
 #pkldatafolder = '/home/Fukushima/wfrib/test_beam24/'
@@ -671,17 +671,18 @@ d5a_dx = d5a_xw/float64(d5a_nx)
 d5a_dy = d5a_yw/float64(d5a_ny)
 d5a_dz = d5a_zlen/float64(d5a_nz)
 
-data = getdatafromtextfile(scriptfolder+"bend_trans.dat",dims=[3,None],)
-if len(data[0]) != (d5a_nx+1)*(d5a_ny+1)*(d5a_nz+1): raise Exception("bend grid data is invalid.")
-d5a_bx = data[0].copy()*gauss
-d5a_by = data[1].copy()*gauss
-d5a_bz = data[2].copy()*gauss
+if d5p1_typ == "nl":
+ data = getdatafromtextfile(scriptfolder+"bend_trans.dat",dims=[3,None],)
+ if len(data[0]) != (d5a_nx+1)*(d5a_ny+1)*(d5a_nz+1): raise Exception("bend grid data is invalid.")
+ d5a_bx = data[0].copy()*gauss
+ d5a_by = data[1].copy()*gauss
+ d5a_bz = data[2].copy()*gauss
 
-d5a_bx.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1))
-d5a_by.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1))
-d5a_bz.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1))
+ d5a_bx.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1))
+ d5a_by.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1))
+ d5a_bz.resize((d5a_nx+1,d5a_ny+1,d5a_nz+1)) 
 
-d5a_3d_id = addnewbgrddataset(dx=d5a_dx ,dy=d5a_dx ,zlength=d5a_zlen ,bx=d5a_bx, by=d5a_by ,bz=d5a_bz)
+ d5a_3d_id = addnewbgrddataset(dx=d5a_dx ,dy=d5a_dx ,zlength=d5a_zlen ,bx=d5a_bx, by=d5a_by ,bz=d5a_bz)
 
 # --- --- define dipole d5 
 if d5p1_typ == "lin":
@@ -767,25 +768,7 @@ w3d.l4symtry = false     # 4-fold symmetry
 #      First choose number grid cells without symmetry and reset 
 #      consistent with symmetry options
 
-sym_x = 1.
-sym_y = 1.
 
-w3d.nx = 1026  
-w3d.ny = 250
-
-#l_diag = 2.0 * 8.0*cm #use for distribution plot
-l_grid_x = d5_x_ap*2.0 + 0.02*cm # to be an even nx
-l_grid_y = d5_y_ap*2.0 #+ 0.08*cm
-l_diag_x = l_grid_x/2.0
-l_diag_y = l_grid_y/2.0
-
-w3d.xmmax =  l_grid_x/2.0
-w3d.xmmin = -l_grid_x/2.0
-w3d.ymmax =  l_grid_y/2.0
-w3d.ymmin = -l_grid_y/2.0
-
-dx = l_grid_x/float(w3d.nx) # dx = 0.0004 [m]
-dy = l_grid_y/float(w3d.ny) # dy = 0.0004 [m]
 
 if sim_area == 0:
  n_grid = 400 # 200 previous # number grid cells (no symmetries)  
@@ -837,6 +820,27 @@ if sim_area == 0:
 #     set before the generate for the beam location. 
 
 if sim_area == 1:
+
+ sym_x = 1.
+ sym_y = 1.
+
+ w3d.nx = 1026  
+ w3d.ny = 250
+
+ #l_diag = 2.0 * 8.0*cm #use for distribution plot
+ l_grid_x = d5_x_ap*2.0 + 0.02*cm # to be an even nx
+ l_grid_y = d5_y_ap*2.0 #+ 0.08*cm
+ l_diag_x = l_grid_x/2.0
+ l_diag_y = l_grid_y/2.0
+
+ w3d.xmmax =  l_grid_x/2.0
+ w3d.xmmin = -l_grid_x/2.0
+ w3d.ymmax =  l_grid_y/2.0
+ w3d.ymmin = -l_grid_y/2.0
+
+ dx = l_grid_x/float(w3d.nx) # dx = 0.0004 [m]
+ dy = l_grid_y/float(w3d.ny) # dy = 0.0004 [m]
+
  fi = PRpickle.PR(scriptfolder +'/bend_test/allpart1275.pkl')
  #fi = PRpickle.PR('allpart1275.pkl')
  pcnt = 0
@@ -2422,6 +2426,12 @@ if sim_area == 1:
 
  execfile( scriptfolder + "outputdat3.py")
  step(2)
+ 
+ diag_hist(plt_ekin=true,plt_spnum=true,plt_curr_e=true,plt_curr_p=true,plt_lam_p=true,plt_lam_e=true,
+              plt_lz=true,plt_pth=true,plt_pthn=true,plt_krot=true,plt_lang=true, 
+              plt_cen=true,plt_envrms=true,plt_envmax=true,plt_envrmsp=true,  
+              plt_emit=true,plt_emitn=true,plt_emitg=true,plt_emitng=true,plt_emitr=true,plt_emitnr=true, 
+              plt_emitpv=true,emitpvn=true)
 
 # Make additional history plots for final run if not already called 
 #if not(top.it >= diag_hist_step.max()):
