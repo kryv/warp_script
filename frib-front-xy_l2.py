@@ -27,9 +27,11 @@ from errorcheck  import checksymmetry   # Check for input errors
 
 #import sys
 #vvv = float(sys.argv[2])
+#onoff = int(sys.argv[4])
 
-sim_area = 0 # straight section
-#sim_area = 1 # bend section
+#sim_area = onoff
+#sim_area = 0 # straight section
+sim_area = 1 # bend section
 
 pkldatafolder = '/home/k/wfrib/test/'
 #pkldatafolder = '/home/Fukushima/wfrib/test_beam24/'
@@ -100,7 +102,7 @@ sp.update(sp_O)
 
 top.wpid = nextpid()       # set pid index for variable weights: will initialize on generate when set  
 uzp0pid  = nextpid() - 1   # set pid index to hold particle initial uz to scale weights (set after generate)  
-
+sw0pid   = nextpid() - 1
 
 # --- --- assign species colors using values which may help distinguish on plots: target magenta/green
 sp['O1'].color = "blue"
@@ -608,7 +610,8 @@ else:
 # --- --- element specification 
 
 d5p1_zc  = 69.581900   # D5 1: z-center  
-d5p1_str = 1.0         # D5 1: Input field scale factor
+d5p1_str = 0.6015157305571277 #*(1.0 + (vvv-10.0)/1000.0) 
+                              # D5 1: Input field scale factor
 d5p1_typ = "nl"        # D5 1: type: "lin" = linear optics fields or "3d" = 3d field  
 
 # --- --- nonlinear element data 
@@ -672,7 +675,7 @@ d5a_dy = d5a_yw/float64(d5a_ny)
 d5a_dz = d5a_zlen/float64(d5a_nz)
 
 if d5p1_typ == "nl":
- data = getdatafromtextfile(scriptfolder+"bend_trans.dat",dims=[3,None],)
+ data = getdatafromtextfile(scriptfolder+"bend_trans.table",dims=[3,None],)
  if len(data[0]) != (d5a_nx+1)*(d5a_ny+1)*(d5a_nz+1): raise Exception("bend grid data is invalid.")
  d5a_bx = data[0].copy()*gauss
  d5a_by = data[1].copy()*gauss
@@ -695,7 +698,7 @@ elif d5p1_typ == "nl":
   #d5p2 = addnewbgrd(dx=d5_3d_dx, dy=d5_3d_dy, xs=d5_3d_x_m.min(), ys=d5_3d_y_m.min(),
   #  zs=d5p1_zc-d5_3d_zlen/2., ze=d5p1_zc+d5_3d_zlen/2., id=d5_3d_id, sc=d5p1_str)
   d5p2 = addnewbgrd(dx=d5a_dx, dy=d5a_dy, xs=-d5a_dx*d5a_nx*0.5, ys=-d5a_dx*d5a_ny*0.5,
-    zs=d5a_str, ze=d5a_end, id=d5a_3d_id, sc=0.6015)
+    zs=d5a_str, ze=d5a_end, id=d5a_3d_id, sc=d5p1_str)
   #should be ot = -pi*0.25
 else:
   print("Warning: No D5 1st Dipole Applied Fields Defined") 
@@ -841,7 +844,7 @@ if sim_area == 1:
  dx = l_grid_x/float(w3d.nx) # dx = 0.0004 [m]
  dy = l_grid_y/float(w3d.ny) # dy = 0.0004 [m]
 
- fi = PRpickle.PR(scriptfolder +'/bend_test/allpart1275.pkl')
+ fi = PRpickle.PR(scriptfolder +'allpart1275.pkl')
  #fi = PRpickle.PR('allpart1275.pkl')
  pcnt = 0
  sp_z_ave = []
@@ -853,6 +856,7 @@ if sim_area == 1:
  allspvx = fi.allspvx
  allspvy = fi.allspvy
  allspvz = fi.allspvz
+ allspw  = fi.allspw
  allspsw = fi.allspsw
 
  for ii in sort(sp.keys()):
@@ -862,6 +866,7 @@ if sim_area == 1:
 
  z_launch = average(sp_z_ave)
 
+ 
 #z_launch = 69.200938#average(sp_z_ave)
 #z_launch  = 67.69167#ecr_z_extr + 10.*cm 
 #z_launch = d5_tmp_s
@@ -888,7 +893,22 @@ if sim_area == 0:
  w3d.distrbtn = "WB"          # initial waterbag distribution
  #w3d.distrbtn = "SG"          # initial semi-Gaussian distribution 
 
-if sim_area == 1: w3d.distrbtn = "none"
+if sim_area == 1:
+ w3d.distrbtn = "none"
+ def injectall():
+  pcnt = 0
+  for ii in sort(sp.keys()):
+   gi = ones(len(allspx[pcnt]))
+   sp[ii].addparticles(x=allspx[pcnt],   y=allspy[pcnt],   z=allspz[pcnt],\
+                  vx=allspvx[pcnt], vy=allspvy[pcnt], vz=allspvz[pcnt],\
+                      gi = gi, w = allspw[pcnt], lallindomain=1)
+   sp[ii].sw = allspsw[pcnt]
+   sp[ii].vbeam = average(allspvz[pcnt])
+   top.npmax += sp[ii].getn()
+   pcnt += 1
+ installparticleloader(injectall)
+
+
 
 # --- random number options to use in loading 
 w3d.xrandom  = "pseudo" # "digitrev"    # load x,y,z  with digitreverse random numbers 
@@ -963,25 +983,13 @@ package("wxy"); generate()
 #raise Exception("to here")
 #memo sp[].w = array 0
 
-if sim_area == 1:
- pcnt = 0
- for ii in sort(sp.keys()):
-  gi = ones(len(allspx[pcnt]))
-  sp[ii].addpart(x=allspx[pcnt],   y=allspy[pcnt],   z=allspz[pcnt],\
-                 vx=allspvx[pcnt], vy=allspvy[pcnt], vz=allspvz[pcnt],\
-                     gi = gi, w = 0.0)
-  sp[ii].sw = allspsw[pcnt]
-  top.npmax += sp[ii].getn()
-  pcnt += 1
-
-#raise Exception('to here')
 # Read in diagnostics for applied lattice fields 
 execfile( pkldatafolder + "diag_lattice.py") 
 
 # Install conducting aperture on mesh 
 installconductors(aperture,dfill=largepos)
 
-#top.dipoby = array([ 0.17780642])
+if d5p1_typ == "lin": top.dipoby = array([ 0.17780642])
 #top.dipoby = array([ 0.18817846])
 #raise Exception("to here")
 
@@ -991,22 +999,20 @@ checksymmetry()
 #raise Exception("to here")
 
 # Carry out an initial unneutralized field solve with conducting pipe after generate 
-for s in sp.values():       
-  s.w   = 1.      # Need full charge: set relative weight to unity 
+if sim_area == 0:
+ for s in sp.values():  
+   s.w   = 1.      # Need full charge: set relative weight to unity 
 
-loadrho() 
-fieldsolve() 
+ loadrho() 
+ fieldsolve() 
 
-#raise Exception("to here")
-#memo sp[].w = array 1
+ # Make plot of initial unneutralized beam potential profile 
+          
+ diag_plt_phi_ax(label="Initial Unneutralized Beam Potential at y,x = 0 b,r") 
+ fma()
 
-# Make plot of initial unneutralized beam potential profile 
-         
-diag_plt_phi_ax(label="Initial Unneutralized Beam Potential at y,x = 0 b,r") 
-fma()
-
-diag_plt_phi_ax(label="Initial Unneutralized Beam Potential at y,x = 0 b,r",xmax=1.5*r_x)
-fma()
+ diag_plt_phi_ax(label="Initial Unneutralized Beam Potential at y,x = 0 b,r",xmax=1.5*r_x)
+ fma()
 
 
 # Setup variable weight species needs for neutralization and acceleration 
@@ -1014,12 +1020,19 @@ fma()
 # --- set initial weight factors consistent with neutralization factor 
 #       w0 = initial weight (same for all particles in species) 
 #       species.w = array of variable weight factors 
-for s in sp.values():       
+if sim_area == 0 :
+ for s in sp.values(): 
   s.w0  = 1.-neut_f1
   #s.w   = 1.-neut_f1
   s.sw0    = s.sw       # save initial sw    (in case later changed)  
   s.vbeam0 = s.vbeam    # save initial vbeam (in case later changed)  
-
+elif sim_area == 1 :
+ for s in sp.values(): 
+  s.pid[:,sw0pid]  = s.w
+  #s.w   = 1.-neut_f1
+  s.sw0    = s.sw       # save initial sw    (in case later changed)  
+  s.vbeam0 = s.vbeam    # save initial vbeam (in case later changed)
+  
 # --- save initial uzp for all species at once 
 top.pgroup.pid[:,uzp0pid] = top.pgroup.uzp
 
@@ -1027,7 +1040,8 @@ top.pgroup.pid[:,uzp0pid] = top.pgroup.uzp
 @callfrombeforeloadrho
 def adjustweights():
   for s in sp.values():
-    s.w[:] = s.w0*s.pid[:,uzp0pid]/s.uzp
+    if s.getn() !=0:
+     s.w[:] = s.pid[:,sw0pid]*s.pid[:,uzp0pid]/s.uzp
 
 # Carry out explicit fieldsolve with adjusted rho consistent with neutralization 
 loadrho() 
