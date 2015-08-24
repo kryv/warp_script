@@ -870,7 +870,7 @@ if sim_area == 1:
 #z_launch = 69.200938#average(sp_z_ave)
 #z_launch  = 67.69167#ecr_z_extr + 10.*cm 
 #z_launch = d5_tmp_s
-top.zbeam = z_launch
+if sim_area == 0 : top.zbeam = z_launch
 
 # rms equivalent beam loaded with the specified distribution form 
 #     KV => KV Distribution 
@@ -979,9 +979,7 @@ def diag_plt_phi_ax(xmax=None,label=None):
 # set previously.  Particles are advanced with the step() command later
 # after various diagnostics are setup.
 package("wxy"); generate()
-
-#raise Exception("to here")
-#memo sp[].w = array 0
+if sim_area == 1 : top.zbeam = z_launch
 
 # Read in diagnostics for applied lattice fields 
 execfile( pkldatafolder + "diag_lattice.py") 
@@ -1041,7 +1039,10 @@ top.pgroup.pid[:,uzp0pid] = top.pgroup.uzp
 def adjustweights():
   for s in sp.values():
     if s.getn() !=0:
-     s.w[:] = s.pid[:,sw0pid]*s.pid[:,uzp0pid]/s.uzp
+     if sim_area == 0:
+      s.w[:] = s.w0*s.pid[:,uzp0pid]/s.uzp
+     elif sim_area == 1:
+      s.w[:] = s.pid[:,sw0pid]*s.pid[:,uzp0pid]/s.uzp
 
 # Carry out explicit fieldsolve with adjusted rho consistent with neutralization 
 loadrho() 
