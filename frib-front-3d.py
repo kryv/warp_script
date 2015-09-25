@@ -365,7 +365,7 @@ else:
 
 # --- --- element specification 
 
-d5p1_str = 0.6015157305571277 + www #*(1.0+((float(www)-500.0)/100.0/1000.0)) # D5 1: Input field scale factor
+d5p1_str = 0.6015157305571277 + www # D5 1: Input field scale factor
 d5p1_typ = "nl"        # D5 1: type: "lin" = linear optics fields or "3d" = 3d field  
 
 # --- --- nonlinear element data 
