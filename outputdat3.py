@@ -34,7 +34,61 @@ for index in range(0,top.jhist+1):
   fout.write("%15.8e "%(sp[i].hxbar[0,index]))
  fout.write("\n") 
 fout.close()
+
+#------- output ybar ------- 
+filename = "ybar.dat"
+fout = open(filename, "a") 
+fout.write(" zbeam_pos       ")
+for i in sort(sp.keys()):
+ if len(i) == 2:
+  fout.write(i+"              ")
+ if len(i) == 3:
+  fout.write(i+"             ")
+fout.write("\n")
+
+for index in range(0,top.jhist+1):
+ fout.write("%15.8e "%(top.hzbeam[index]))
+ for i in sort(sp.keys()):
+  fout.write("%15.8e "%(sp[i].hybar[0,index]))
+ fout.write("\n") 
+fout.close()
+
+#------- output vxbar ------- 
+filename = "vxbar.dat"
+fout = open(filename, "a") 
+fout.write(" zbeam_pos       ")
+for i in sort(sp.keys()):
+ if len(i) == 2:
+  fout.write(i+"              ")
+ if len(i) == 3:
+  fout.write(i+"             ")
+fout.write("\n")
+
+for index in range(0,top.jhist+1):
+ fout.write("%15.8e "%(top.hzbeam[index]))
+ for i in sort(sp.keys()):
+  fout.write("%15.8e "%(sp[i].hvxbar[0,index]))
+ fout.write("\n") 
+fout.close()
  
+#------- output vybar ------- 
+filename = "vybar.dat"
+fout = open(filename, "a") 
+fout.write(" zbeam_pos       ")
+for i in sort(sp.keys()):
+ if len(i) == 2:
+  fout.write(i+"              ")
+ if len(i) == 3:
+  fout.write(i+"             ")
+fout.write("\n")
+
+for index in range(0,top.jhist+1):
+ fout.write("%15.8e "%(top.hzbeam[index]))
+ for i in sort(sp.keys()):
+  fout.write("%15.8e "%(sp[i].hvybar[0,index]))
+ fout.write("\n") 
+fout.close() 
+
 #------- output xrms -------
 filename = "xrms.dat"
 fout = open(filename, "a") 
