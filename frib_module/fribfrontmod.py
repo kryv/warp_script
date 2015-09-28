@@ -10,6 +10,7 @@ For documentation see the Warp web-site:
 
 All code inputs are mks with the exception of particle kinetic energy (eV).   
 
+small edit
 """
 
 # Load Warp package
