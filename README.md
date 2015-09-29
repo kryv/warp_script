@@ -15,11 +15,11 @@
 
 - anm_plot.py
   - Movie making script for the Warp simulation in the straight section of the FRIB front end
-(Not rely on matplotlib_anim_wrapper type)
+(independent of matplotlib_anim_wrapper type)  
 
 - anm_plot_bnd.py  
   - Movie making script for the Warp simulation in the bending section of the FRIB front end 
-(Not rely on matplotlib_anim_wrapper type)
+(independent of matplotlib_anim_wrapper type)  
 
 - b2-meth.py
   - Root finding script by the Warp simulation result and Broyden method
@@ -29,3 +29,6 @@
 
 - frib-front-xy_to3d.py
   - 2D Warp simulation script (grid data of the lattice elements is required)
+
+- simple_animation.py
+  - Simple movie making script (independent of matplotlib_anim_wrapper type)
