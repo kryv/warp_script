@@ -3,10 +3,10 @@
 ## Files 
 
 - datapick_plt.py
-     - make x-y plot from 3D smilation data (zmnt_${stepnum}.pkl)
+     - make x-y plot from 3D smilation result (zmnt_${stepnum}.pkl)
 
 - datapick_plt2.py
-     - make x-y plot from 3D smilation data (zmnt_${stepnum}.pkl) with transforming tilted phase-space 
+     - make x-y plot from 3D smilation result (zmnt_${stepnum}.pkl) with transforming tilted phase-space 
 
 - out_ecfield.py
      - output self potential field grid data from 3D Warp simlation
