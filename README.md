@@ -1,0 +1,26 @@
+# warp_script
+
+Directories
+-------------------------------------
+frib_module                  : Developing scripts for the Warp FRIB front end simulations.
+matplotlib_anim_wrapper      : Scripts for making movies by matplotlib packages.
+movies                       : Sample movie and script of the FRIB front end (bending section).
+output_script                : Scripts for taking output data from the Warp simulation script.
+previous_versions            : Previous version of the Warp simulation script.
+-------------------------------------
+
+
+Files
+-------------------------------------
+anm_plot.py                  
+: Movie making script for the Warp simulation in the straight section of the FRIB front end
+(Not rely on matplotlib_anim_wrapper type)
+
+anm_plot_bnd.py
+: Movie making script for the Warp simulation in the bending section of the FRIB front end
+(Not rely on matplotlib_anim_wrapper type)
+
+
+
+
+-------------------------------------
