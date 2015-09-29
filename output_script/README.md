@@ -3,6 +3,7 @@
 ## Files 
 
 - datapick_plt.py
+ - make plot from zmnt.pkl data
 
 - datapick_plt2.py
 
