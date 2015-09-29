@@ -3,9 +3,10 @@
 ## Files 
 
 - datapick_plt.py
-     - make plot from zmnt.pkl data  
+     - make x-y plot from 3D smilation data (zmnt_${stepnum}.pkl)
 
 - datapick_plt2.py
+     - make x-y plot from 3D smilation data (zmnt_${stepnum}.pkl) with removing tilt
 
 - out_ecfield.py
 
