@@ -27,16 +27,21 @@ from extpart import ZCrossingParticles
 #from matplotlib_anim_wrapper import *
 random.seed(100)  
 
+#find convergence values by scale factor and shifting center
+#tmpload = loadtxt('sfdr.dat')
+#dltr = tmpload[0]    # r offset of the bend
+#sclf = tmpload[1]    # B field scale factor of the bend
+
 # Convergence values for dt = 0.5e-9
-#vvv = -1.730359531119931996e-03    # r offset of the bend
-#www =  9.959573286652109378e-04    # B field scale factor of the bend
+#dltr = -1.49315359e-5    # r offset of the bend
+#sclf =  1.11253776e-3    # B field scale factor of the bend
 
 # Convergence values for dt = 1e-9
-vvv = 1.24535256e-07    # r offset of the bend
-www = 1.11394687e-03    # B field scale factor of the bend
+dltr = -1.20575783e-6    # r offset of the bend
+sclf =  1.11386387e-3    # B field scale factor of the bend
 
-qqq =  0.0    # y offset of the bend
-ppp =  0.0    # tilt of the bend
+offy =  0.0    # y offset of the bend
+bnka =  0.0    # bank angle of the bend
 
 
 # Grid data and distribution data setting
@@ -175,6 +180,7 @@ StandBias = A_ref*ekin_per_u/Q_ref - SourceBias  # Bias of Injector Column
 
 Bias = StandBias + SourceBias
 
+top.lrelativ   = 1                # turn on relativity 
 
 # --- Venus ECR Source 
 #     Comment: Must have same z-grids for linear and nonlinear forms.  Minimal error checking to enforce this. 
@@ -222,11 +228,11 @@ else:
 # --- --- element specification 
 
 s4p1_zc  = 66.956900   # S4 1: z-center  
-s4p1_str = 0.6 # 0.754 # S4 1: peak on-axis B_z field strength [Tesla]
+s4p1_str = 0.0 # 0.754 # S4 1: peak on-axis B_z field strength [Tesla]
 s4p1_typ = "nl"        # S4 1: type: "lin" = linear optics fields or "nl" = nonlinear r-z field  
 
 s4p2_zc  = 68.306900   # S4 2: z-center 
-s4p2_str = 0.5 # 0.617 # s4 2: peak on-axis B_z field strength [Tesla]
+s4p2_str = 0.0 # 0.617 # s4 2: peak on-axis B_z field strength [Tesla]
 s4p2_typ = "nl"        # S4 1: type: "lin" = linear optics fields or "nl" = nonlinear r-z field  
 
 # --- --- linear element data  
@@ -365,7 +371,7 @@ else:
 
 # --- --- element specification 
 
-d5p1_str = 0.6015157305571277 + www # D5 1: Input field scale factor
+d5p1_str = 0.6015157305571277 + sclf # D5 1: Input field scale factor
 d5p1_typ = "nl"        # D5 1: type: "lin" = linear optics fields or "3d" = 3d field  
 
 # --- --- nonlinear element data 
@@ -387,19 +393,18 @@ d5a_nz = 300
 d5a_xw = (75.0)*cm
 d5a_yw = 10.0*cm
 d5a_zlen = (150.0)*cm 
-#d5a_zlen = (d5_tmp_rc*2.0*pi)*0.25
 
 d5a_cen = (d5_tmp_s + d5_tmp_e)/2.0
 d5a_s = d5a_cen - d5a_zlen/2.0
 d5a_e = d5a_cen + d5a_zlen/2.0
-d5a_xs = -d5_tmp_rc +15.0*cm  + vvv #+ ((float(vvv)-500.0)/10.0)*mm
+d5a_xs = -d5_tmp_rc +15.0*cm  + dltr
 
 d5a_dx = d5a_xw/float(d5a_nx)
 d5a_dy = d5a_yw/float(d5a_ny)
 d5a_dz = d5a_zlen/float(d5a_nz)
 
-d5a_oy = qqq
-d5a_ph = ppp
+d5a_oy = offy
+d5a_ph = bnka
 
 
 if d5p1_typ == "nl" :
@@ -435,10 +440,10 @@ neut_f = 100.0/100.0                 # corresponding electron neutralization fac
 if neut_f == 1.0 :
     top.depos = 'none'
     wmlti = 1.0
-    flag1 = 1
+    fsflag = 1
 else :
     wmlti = 1.0 - neut_f
-    flag1 = 0
+    fsflag = 0
 
 
 # --- Aperture specfications 
@@ -466,26 +471,35 @@ w3d.l4symtry = false     # 4-fold symmetry
 #dist_load_type = 0  # load reference orbit
 dist_load_type = 1  # load DC beam
 
-sp_z_ave = []
-sp_vz_ave = []
-top.npmax = 0
-fi = PRpickle.PR(slice_dist0)
+if dist_load_type == 0:
+    zref = 68.660938
+    vzref = 1510458.1230053091
+    sp_z_ave = [zref]
+    sp_vz_ave = [vzref]
+ 
+elif dist_load_type == 1:
 
-allspx  = fi.allspx
-allspy  = fi.allspy
-allspz  = fi.allspz
-allspvx = fi.allspvx
-allspvy = fi.allspvy
-allspvz = fi.allspvz
-allspw  = fi.allspw
-allspsw = fi.allspsw
+    sp_z_ave = []
+    sp_vz_ave = []
+    top.npmax = 0
+    
+    fi = PRpickle.PR(slice_dist0)
 
-for pcnt,ii in enumerate(sort(sp.keys())):
-    sp_z_ave.append(average(allspz[pcnt]))
-    sp_vz_ave.append(average(allspvz[pcnt]))
-fi.close()
+    allspx  = fi.allspx
+    allspy  = fi.allspy
+    allspz  = fi.allspz
+    allspvx = fi.allspvx
+    allspvy = fi.allspvy
+    allspvz = fi.allspvz
+    allspw  = fi.allspw
+    allspsw = fi.allspsw
 
-if dist_load_type == 1:
+    for pcnt,ii in enumerate(sort(sp.keys())):
+        sp_z_ave.append(average(allspz[pcnt]))
+        sp_vz_ave.append(average(allspvz[pcnt]))
+    fi.close()
+
+
     fi = PRpickle.PR(slice_dist1)
 
     allspx2  = fi.allspx
@@ -504,16 +518,18 @@ if dist_load_type == 1:
     ddspvx = array(allspvx2) - array(allspvx)
     ddspvy = array(allspvy2) - array(allspvy)
     ddspvz = array(allspvz2) - array(allspvz)
+    
+    vzref = allspvz[12]
 
 
-sym_x = 1.
-sym_y = 1.
-#w3d.nx = 4
-#w3d.ny = 4
-#w3d.nz = 6
-w3d.nx = 40
-w3d.ny = 40
-w3d.nz = 9
+if fsflag:
+    w3d.nx = 4
+    w3d.ny = 4
+    w3d.nz = 9
+else :
+    w3d.nx = 40
+    w3d.ny = 40
+    w3d.nz = 9
 
 
 #l_diag = 2.0 * 8.0*cm #use for distribution plot
@@ -533,7 +549,7 @@ dy = l_grid_y/float(w3d.ny) # dy = 0.0004 [m]
 
 z_launch = average(sp_z_ave)
 
-top.vbeam = average(allspvz[12])#sp['U33'].vbeam
+top.vbeam = average(vzref)#sp['U33'].vbeam
 d5sim_end = d5_tmp_e + d5_tmp_s - z_launch
 all_len = d5_tmp_e + d5_tmp_s - z_launch*2.0
 vtarget = top.vbeam
@@ -549,72 +565,71 @@ l_diag_zs = w3d.zmmin
 l_diag_ze = w3d.zmmax
 l_grid_z = w3d.zmmax - w3d.zmmin
 
-w3d.boundxy = 0
-
 top.fstype = 7
-if flag1:
+if fsflag:
     top.fstype = -1
     #top.depos = "none"
 
+w3d.boundxy = 0
 top.pbound0  = absorb   # bnd condition for particles at z=0
 top.pboundnz = absorb
 top.pboundxy = absorb
 top.ibpush   = 2           # magnetic field particle push, 
                            #   0 - off, 1 - fast, 2 - accurate 
 
-                           
-zmonitor = d5sim_end-0.05
+if dist_load_type == 1:
+    zmonitor = d5sim_end
 
-zpwall=ZPlane(z0=0,zsign=1,voltage=0.0,zcent=zmonitor,condid="next")
-scraper = ParticleScraper(zpwall)
+    zpwall=ZPlane(z0=0,zsign=1,voltage=0.0,zcent=zmonitor,condid="next")
+    scraper = ParticleScraper(zpwall)
 
-top.lsavelostpart = true
-sp['U32'].npmaxlost = 30000
-sp['U33'].npmaxlost = 30000
-sp['U34'].npmaxlost = 30000
+    top.lsavelostpart = true
+    sp['U32'].npmaxlost = 30000
+    sp['U33'].npmaxlost = 30000
+    sp['U34'].npmaxlost = 30000
 
 
-# Add child grid
-solver = MRBlock3D()
-registersolver(solver)
+if not(fsflag):
+    # Add child grid
+    solver = MRBlock3D()
+    registersolver(solver)
 
-child1 = solver.addchild(
-                mins=[0.25*w3d.xmmin,w3d.ymmin,z_launch-5.0*cm],
-                maxs=[0.25*w3d.xmmax,w3d.ymmax,d5sim_end],
-                refinement=[4,1,150])
+    child1 = solver.addchild(
+                    mins=[0.25*w3d.xmmin,w3d.ymmin,z_launch-5.0*cm],
+                    maxs=[0.25*w3d.xmmax,w3d.ymmax,d5sim_end],
+                    refinement=[4,1,150])
 
   
-
-# Set weight of species
-add_per_step = 10
-for pcnt,ii in enumerate(sort(sp.keys())):
-    pnum = len(allspx[pcnt])
-    vpart = average(allspvz[pcnt])
-    zpart = average(allspz[pcnt])
-    sp[ii].sw = allspsw[pcnt]*float(pnum)/float(add_per_step)\
-                *vpart*top.dt # / 1 meter
-    sp[ii].vbeam = average(allspvz[pcnt])
-    top.npmax += add_per_step
-
 # Set user injection function
 
 if dist_load_type == 0:
     add_per_step = 1
     def uinjectall():
-        for pcnt,ii in enumerate(sort(sp.keys())):
-            pnum = len(allspx[pcnt])
-            cc = random.randint(0,pnum,add_per_step)
-            cp = random.rand(add_per_step)
-            gi = ones(add_per_step)
-            sp[ii].addparticles(
-                    z = average(allspz[pcnt]),
-                    vz = average(allspvz[pcnt]),
-                    gi = gi, w = gi*wmlti, lallindomain=1 )              
-            sp[ii].pid[-add_per_step:,sw0pid] = sp[ii].w[-add_per_step:]
-            sp[ii].pid[-add_per_step:,uzp0pid] = sp[ii].uzp[-add_per_step:]
+        ii = 'U33'
+        pnum = 1
+        cc = random.randint(0,pnum,add_per_step)
+        cp = random.rand(add_per_step)
+        gi = ones(add_per_step)
+        sp[ii].addparticles(
+                z = average(zref),
+                vz = average(vzref),
+                gi = 1.0, w = 1.0, lallindomain=1 )              
+        sp[ii].pid[-add_per_step:,sw0pid] = sp[ii].w[-add_per_step:]
+        sp[ii].pid[-add_per_step:,uzp0pid] = sp[ii].uzp[-add_per_step:]
     installparticleloader(uinjectall)
     
 elif dist_load_type == 1:
+    # Set weight of species
+    add_per_step = 10
+    for pcnt,ii in enumerate(sort(sp.keys())):
+        pnum = len(allspx[pcnt])
+        vpart = average(allspvz[pcnt])
+        zpart = average(allspz[pcnt])
+        sp[ii].sw = allspsw[pcnt]*float(pnum)/float(add_per_step)\
+                    *vpart*top.dt # / 1 meter
+        sp[ii].vbeam = average(allspvz[pcnt])
+        top.npmax += add_per_step
+
     def uinjectall():
         for pcnt,ii in enumerate(sort(sp.keys())):
             pnum = len(allspx[pcnt])
@@ -665,37 +680,44 @@ checksymmetry()
 
 # Advance simulation specified steps 
 
-zstep = top.vbeam*top.dt
-n_step = nint((d5sim_end-z_launch)/zstep) + 2   # add two extra steps in case of roundoff accumulation 
-#step(n_step*2)
-step(3000)
+if dist_load_type == 0:
+    zstep = top.vbeam*top.dt
+    n_step = nint((d5sim_end-z_launch)/zstep) -5
+    top.nhist = 1
+    step(n_step)
+    
+    if sp['U33'].getn() == 1:
+        savetxt("tmpxvx.lst",transpose((1000.0*sp['U33'].hxbar[0][-1],sp['U33'].hvxbar[0][-1])))
 
-execfile( sfld + "outparticle2.py")
-execfile( sfld + "out_ecfield.py")
+        
+elif dist_load_type == 1:
+    step(3000)
+    execfile( sfld + "outparticle2.py")
+    execfile( sfld + "out_ecfield.py")
 
-lzmnt = 1
-if lzmnt :
-    zmps = arange(68.68,zmonitor,2.0*cm)
-    zmnt = [0]*len(zmps)
-    nnzm = 0
-    for ii in zmps :
-        zmnt[nnzm] = ZCrossingParticles(zz=ii,laccumulate=1,lsavefields=1)
-        nnzm += 1
+    lzmnt = 0
+    if lzmnt :
+        zmps = arange(68.68,zmonitor,2.0*cm)
+        zmnt = [0]*len(zmps)
+        nnzm = 0
+        for ii in zmps :
+            zmnt[nnzm] = ZCrossingParticles(zz=ii,laccumulate=1,lsavefields=1)
+            nnzm += 1
 
-step(200)
-execfile( sfld + 'out_mnt.py')
+    step(200)
+    execfile( sfld + 'out_mnt.py')
 
-execfile( sfld + "outparticle2.py")
-execfile( sfld + "outparticle2lost.py")
-execfile( sfld + "out_ecfield.py") 
+    execfile( sfld + "outparticle2.py")
+    execfile( sfld + "outparticle2lost.py")
+    execfile( sfld + "out_ecfield.py") 
 
-step(200)
-execfile( scriptfolder + 'out_mnt.py')
+    step(200)
+    execfile( scriptfolder + 'out_mnt.py')
 
 
-# Print out timing statistics of run 
-printtimers() 
+    # Print out timing statistics of run 
+    printtimers() 
 
-# Make sure that last plot is flushed from buffer
-fma() 
+    # Make sure that last plot is flushed from buffer
+    fma() 
 

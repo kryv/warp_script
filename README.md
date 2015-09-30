@@ -4,8 +4,8 @@
 |**Directories** | |
 |:-----------|:-------------|
 | frib\_module                  | Developing scripts for the Warp FRIB front end simulations.  |
-| fribfe_bend                     | Warp simulation script for bending section  |
-| fribfe_straight                 | Warp simulation script for straight section |
+| fribfe_bend                   | Warp simulation script for FRIB front end bending section  |
+| fribfe_straight               | Warp simulation script for FRIB front end straight section |
 | matplotlib\_anim\_wrapper     | Scripts for making movies by matplotlib packages.  |
 | movies                        | Sample movie and script of the FRIB front end (bending section). | 
 | output\_script                | Scripts for taking output data from the Warp simulation script.  |
