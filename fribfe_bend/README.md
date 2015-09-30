@@ -2,7 +2,7 @@
 
 ## Directories
 - placement
- - find convergence values by shifting center dr and scaling field SF so reference centroid emerges on-axis
+ - Find convergence values by shifting center dr and scaling field SF so reference centroid emerges on-axis
 
 ## Files
 - frib-front-3d.py
