@@ -6,4 +6,4 @@
 
 - frib-front-3d.py
   - 3D Warp simulation script (grid data of the lattice elements is required)
-  - only change flags (dist_load_type = 0 and find_conv = True) from parent directory file
+  - only change flags (dist_load_type = 0 and find_conv = True) from the parent directory file
