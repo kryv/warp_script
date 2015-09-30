@@ -27,30 +27,37 @@ from extpart import ZCrossingParticles
 #from matplotlib_anim_wrapper import *
 random.seed(100)  
 
+dist_load_type = 0  # load reference orbit
+#dist_load_type = 1  # load DC beam
+
 #find convergence values by scale factor and shifting center
-tmpload = loadtxt('sfdr.dat')
-dltr = tmpload[0]    # r offset of the bend
-sclf = tmpload[1]    # B field scale factor of the bend
+find_conv = True
+if find_conv:
+    tmpload = loadtxt('sfdr.dat')
+    dltr = tmpload[0]    # r offset of the bend
+    sclf = tmpload[1]    # B field scale factor of the bend
 
-# Convergence values for dt = 0.5e-9
-#dltr = -1.49315359e-5    # r offset of the bend
-#sclf =  1.11253776e-3    # B field scale factor of the bend
+else:    
+    # Convergence values for dt = 0.5e-9
+    #dltr = -1.49315359e-5    # r offset of the bend
+    #sclf =  1.11253776e-3    # B field scale factor of the bend
 
-# Convergence values for dt = 1e-9
-#dltr = -1.20575783e-6    # r offset of the bend
-#sclf =  1.11386387e-3    # B field scale factor of the bend
+    # Convergence values for dt = 1e-9
+    dltr = -1.20575783e-6    # r offset of the bend
+    sclf =  1.11386387e-3    # B field scale factor of the bend
 
 offy =  0.0    # y offset of the bend
 bnka =  0.0    # bank angle of the bend
-
 
 # Grid data and distribution data setting
 pfld = ''
 sfld = ''
 dfld = ''
 
-#slice_dist0 = dfld+'allpart1010.pkl'
-#slice_dist1 = dfld+'allpart1011.pkl'
+if dist_load_type == 1:
+    slice_dist0 = dfld+'allpart1010.pkl'
+    slice_dist1 = dfld+'allpart1011.pkl'
+    
 ecr_grid_lin = pfld+'lat_ecr_venus.lin.20150813.pkl'
 sol_grid_lin = pfld+'s4.lin.20150907.pkl'
 sol_grid_rz = pfld+'s4.rz.20150907.pkl'
@@ -468,16 +475,16 @@ top.zlatstrt  = 0.       # z of lattice start; added to element z's [m]
 w3d.l2symtry = false     # 2-fold symmetry
 w3d.l4symtry = false     # 4-fold symmetry
 
-dist_load_type = 0  # load reference orbit
-#dist_load_type = 1  # load DC beam
 
 if dist_load_type == 0:
+    # Target beam (U33) information
     zref = 68.660938
     vzref = 1510458.1230053091
     sp_z_ave = [zref]
     sp_vz_ave = [vzref]
  
 elif dist_load_type == 1:
+    # Load particle distribution data
 
     sp_z_ave = []
     sp_vz_ave = []
@@ -532,7 +539,6 @@ else :
     w3d.nz = 9
 
 
-#l_diag = 2.0 * 8.0*cm #use for distribution plot
 l_grid_x = d5_x_ap*2.0 + 0.02*cm # to be an even nx
 l_grid_y = d5_y_ap*2.0 #+ 0.08*cm
 l_diag_x = l_grid_x/2.0
@@ -578,7 +584,7 @@ top.ibpush   = 2           # magnetic field particle push,
                            #   0 - off, 1 - fast, 2 - accurate 
 
 if dist_load_type == 1:
-    zmonitor = d5sim_end
+    zmonitor = d5sim_end - 0.05
 
     zpwall=ZPlane(z0=0,zsign=1,voltage=0.0,zcent=zmonitor,condid="next")
     scraper = ParticleScraper(zpwall)
@@ -681,6 +687,7 @@ checksymmetry()
 # Advance simulation specified steps 
 
 if dist_load_type == 0:
+
     zstep = top.vbeam*top.dt
     n_step = nint((d5sim_end-z_launch)/zstep) -5
     top.nhist = 1
@@ -694,8 +701,10 @@ elif dist_load_type == 1:
     step(3000)
     execfile( sfld + "outparticle2.py")
     execfile( sfld + "out_ecfield.py")
-
-    lzmnt = 0
+    
+    
+    
+    lzmnt = 1    # Flag for beam position monitors
     if lzmnt :
         zmps = arange(68.68,zmonitor,2.0*cm)
         zmnt = [0]*len(zmps)
