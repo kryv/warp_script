@@ -50,8 +50,8 @@ offy =  0.0    # y offset of the bend
 bnka =  0.0    # bank angle of the bend
 
 # Grid data and distribution data setting
-pfld = ''
-sfld = ''
+pfld = 'warp_script/grid_data'
+sfld = 'warp_script/output_script'
 dfld = ''
 
 if dist_load_type == 1:
@@ -64,7 +64,7 @@ sol_grid_rz = pfld+'s4.rz.20150907.pkl'
 sol_grid_at = pfld+'s4.at.20150907.pkl'
 gag_grid_lin = pfld+'lat_gag.lin.20141029.pkl'
 gag_grid_rz = pfld+'lat_gag.rz.20141029.pkl'
-bnd_grid_tr = pfld+'bend_tri.table'
+bnd_grid_tr = pfld+'bend_trans.table'
 bnd_grid_3d = pfld+'lat_d5.3d.20140527.pkl'
 
 
